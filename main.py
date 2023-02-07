@@ -63,7 +63,6 @@ def start_screen():
         clock.tick(FPS)
 
 
-#
 def load_level(filename):
     filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
@@ -81,7 +80,7 @@ def load_level(filename):
 tile_images = {
     'wall': pygame.transform.scale(load_image('block.png'), (50, 50)),
     'empty': pygame.transform.scale(load_image('grass.png'), (50, 50)),
-    'other': pygame.transform.scale(load_image('out.png'), (50, 50)),
+    'other': pygame.transform.scale(load_image('main.png'), (50, 50)),
     'enemy2': pygame.transform.scale(load_image('enemy1.png'), (50, 50)),
     'enemy1': pygame.transform.scale(load_image('enemy2.png'), (50, 50)),
     'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (50, 50))
