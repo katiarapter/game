@@ -9,6 +9,8 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 
 FPS = 50
+pygame.mixer.music.load("sound.mp3")
+pygame.mixer.music.play(-1)
 
 
 def load_image(name, colorkey=None):
@@ -172,7 +174,10 @@ def generate_level(level):
 
 running = True
 start_screen()
-level_list = load_level('map4.txt')
+pygame.mixer.music.pause()
+level_list = load_level('map3.txt')
+pygame.mixer.music.load("3level.mp3")
+pygame.mixer.music.play(-1)
 print("\n".join(level_list))
 player, level_x, level_y = generate_level(level_list)
 while running:
@@ -192,4 +197,5 @@ while running:
     player_group.draw(screen)
 
     pygame.display.flip()
+pygame.mixer.music.pause()
 pygame.quit()
