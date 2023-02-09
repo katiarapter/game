@@ -9,11 +9,12 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 
 FPS = 50
+pygame.mixer.music.load("sound.mp3")
+pygame.mixer.music.play(-1)
 
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
-    # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -51,6 +52,40 @@ def start_screen():
         intro_rect.x = 10
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+def choose_character():
+    intro_text = ['CHOOSE YOUR CHARACTER']
+
+    fon = pygame.transform.scale(load_image('black.png'), (screen.get_width(), screen.get_height()))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 80)
+    string_rendered = font.render(intro_text[0], 100, pygame.Color('white'))
+    intro_rect = string_rendered.get_rect()
+    screen.blit(string_rendered, ((screen.get_width() - 796) // 2, 70, 896, 125))
+    player1 = pygame.image.load('data/player.png')
+    player1_rect = player1.get_rect(bottomleft=(300, 800))
+    screen.blit(player1, player1_rect)
+
+    player2 = pygame.image.load('data/player2.png')
+    player2_rect = player2.get_rect(bottomleft=(700, 800))
+    screen.blit(player2, player2_rect)
+
+    player3 = pygame.image.load('data/enemy2.png')
+    player3_rect = player3.get_rect(bottomleft=(900, 800))
+    screen.blit(player3, player3_rect)
+
+    pygame.display.update()
 
     while True:
         for event in pygame.event.get():
@@ -197,7 +232,11 @@ def generate_level(level):
 
 running = True
 start_screen()
-level_list = load_level('map4.txt')
+pygame.mixer.music.pause()
+pygame.mixer.music.load("3level.mp3")
+pygame.mixer.music.play(-1)
+choose_character()
+level_list = load_level('map2.txt')
 print("\n".join(level_list))
 player, level_x, level_y = generate_level(level_list)
 while running:
@@ -217,4 +256,5 @@ while running:
     player_group.draw(screen)
     clock.tick(20)
     pygame.display.flip()
+pygame.mixer.music.pause()
 pygame.quit()
