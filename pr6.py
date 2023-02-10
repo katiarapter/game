@@ -152,13 +152,12 @@ class Player(pygame.sprite.Sprite):
 
     def down(self):
         flag = 0
-        new_step = step
         for i in range(self.image.get_width()):
             if (self.rect.y + step + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + step + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
                 flag = 1
                 self.rect.y += ((self.rect.y + step + tile_height) // tile_height) * tile_height - (self.rect.y + pl_height)
         if self.rect.y + tile_height < tile_height * len(level_list) and flag == 0:
-            self.rect.y += new_step
+            self.rect.y += step
             self.y = self.rect.y
 
     def up(self):
@@ -169,11 +168,6 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > 0 and flag == 0:
             self.rect.y -= step
             self.y = self.rect.y
-        #for elem in walls:
-        #    if not elem.rect.colliderect(player):
-        #        self.rect.y -= 10
-        #    else:
-        #        player.rect.top = elem.rect.bottom
 
     def left(self):
         if self.moves == 'r':
@@ -195,6 +189,7 @@ class Player(pygame.sprite.Sprite):
         for i in range(self.image.get_height()):
             if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + step + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + step + tile_width) // tile_width] == "#":
                 flag = 1
+                self.rect.x += ((self.rect.x + step + tile_width) // tile_width) * tile_width - (self.rect.x + pl_width)
         if self.rect.x + tile_width < tile_width * len(level_list[0]) and flag == 0:
             self.rect.x += step
             self.x = self.rect.x
