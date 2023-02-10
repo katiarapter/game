@@ -13,7 +13,6 @@ pygame.mixer.music.load("sound.mp3")
 pygame.mixer.music.play(-1)
 
 
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -36,10 +35,11 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
+    intro_text = ["ДОБРО ПОЖАЛОВАТЬ В ИГРУ 'ПУТЬ ИЗ ЛЕСА' ", "",
                   "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+                  "Вам предстоит выбрать героя, далее пройти несколько уровней.",
+                  "Чтобы перейти на новый уровень нужно убить всех злодеев и пройти в портал.",
+                  "Удачи!"]
 
     fon = pygame.transform.scale(load_image('fon1.jpg'), (screen.get_width(), screen.get_height()))
     screen.blit(fon, (0, 0))
@@ -116,19 +116,21 @@ def load_level(filename):
 #
 tile_images = {
     'wall': pygame.transform.scale(load_image('block.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'empty': pygame.transform.scale(load_image('grass.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'other': pygame.transform.scale(load_image('out.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'empty': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'other': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
     'enemy2': pygame.transform.scale(load_image('enemy1.png'), (screen.get_width() // 31, screen.get_height() // 18)),
     'enemy1': pygame.transform.scale(load_image('enemy2.png'), (screen.get_width() // 31, screen.get_height() // 18)),
     'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
 }
 player_image = load_image('player1.png')
-player_image = pygame.transform.scale(player_image, ((screen.get_width() // 31) // 5 * 4 , (screen.get_height() // 18) // 5 * 4))
+player_image = pygame.transform.scale(player_image, ((screen.get_width() // 31) // 5 * 4, (screen.get_height() // 18)
+                                                     // 5 * 4))
 pl_height, pl_width = (screen.get_width() // 31) // 5 * 4, (screen.get_height() // 18) // 5 * 4
 
 tile_width, tile_height = screen.get_width() // 31, screen.get_height() // 18
-#step = tile_height // 10
+# step = tile_height // 10
 step = 10
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
@@ -153,9 +155,14 @@ class Player(pygame.sprite.Sprite):
     def down(self):
         flag = 0
         for i in range(self.image.get_width()):
-            if (self.rect.y + step + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + step + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
+            if (self.rect.y + step + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width \
+                    < len(level_list[0]) and level_list[(self.rect.y + step + tile_height) // tile_height][(self.rect.x
+                                                                                                            + i) //
+                                                                                                           tile_width] \
+                    == "#":
                 flag = 1
-                self.rect.y += ((self.rect.y + step + tile_height) // tile_height) * tile_height - (self.rect.y + pl_height)
+                self.rect.y += ((self.rect.y + step + tile_height) // tile_height) * tile_height - (self.rect.y +
+                                                                                                    pl_height)
         if self.rect.y + tile_height < tile_height * len(level_list) and flag == 0:
             self.rect.y += step
             self.y = self.rect.y
@@ -189,7 +196,10 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'r'
         flag = 0
         for i in range(self.image.get_height()):
-            if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + step + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + step + tile_width) // tile_width] == "#":
+            if (self.rect.y + i) // tile_height < len(level_list) and (
+                    self.rect.x + step + tile_width) // tile_width < len(level_list[0]) and \
+                    level_list[(self.rect.y + i) // tile_height][
+                        (self.rect.x + step + tile_width) // tile_width] == "#":
                 flag = 1
                 self.rect.x += ((self.rect.x + step + tile_width) // tile_width) * tile_width - (self.rect.x + pl_width)
         if self.rect.x + tile_width < tile_width * len(level_list[0]) and flag == 0:
@@ -197,37 +207,44 @@ class Player(pygame.sprite.Sprite):
             self.x = self.rect.x
 
     def coords(self):
-        return (self.x, self.y)
+        return self.x, self.y
 
 
 class Enemy(pygame.sprite.Sprite):
     image = pygame.transform.scale(load_image('enemy2.png'), (50, 50))
+    image2 = pygame.transform.scale(load_image('bomb_enemy.png'), (25, 25))
 
     def __init__(self, x, y, *group):
         super().__init__(*group)
         self.image = Enemy.image
+        self.image2 = Enemy.image2
         self.rect = self.image.get_rect()
         self.x = x * tile_width
         self.y = y * tile_height
-        #group[0].add(self)
+        # group[0].add(self)
 
     def cor(self):
-        return (self.x, self.y)
+        return self.x, self.y
 
     def update(self, player, *group):
         for i in enemy_group:
             # print(type(player.coords()[0]), type(i.cor()[0]))
             n = (((player.coords()[0] - i.cor()[0]) ** 2 + (player.coords()[1] - i.cor()[1]) ** 2) ** 0.5)
             if n <= 120:
-                print('!!')
+                print(i)
                 self.attack(i)
 
     def attack(self, i):
-        pass
+        bomb = pygame.transform.scale(load_image('bomb_player.png'), (tile_width // 2, tile_height // 2))
+        bomb_rect = bomb.get_rect(bottomleft=(i.cor()[0], i.cor()[1] + (tile_height // 1.5)),
+                                  bottomright=(i.cor()[0] + tile_width, i.cor()[1] + (tile_height // 1.5)))
+        screen.blit(bomb, bomb_rect)
+        pygame.display.update()
 
 
-#
 # основной персонаж
+
+
 player = None
 
 # группы спрайтов
@@ -237,6 +254,7 @@ player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 walls = pygame.sprite.Group()
 enemies = []
+
 
 def generate_level(level):
     new_player, x, y = None, None, None
@@ -269,7 +287,7 @@ pygame.mixer.music.load("3level.mp3")
 pygame.mixer.music.play(-1)
 choose_character()
 level_list = load_level('map2.txt')
-#print("\n".join(level_list))
+# print("\n".join(level_list))
 player, level_x, level_y = generate_level(level_list)
 while running:
     all_sprites.draw(screen)
@@ -277,23 +295,23 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        #enemy_group.update(player, enemy_group)
+        # enemy_group.update(player, enemy_group)
     if key[pygame.K_DOWN]:
         player.down()
         enemy_group.update(player, enemy_group)
-        #print(player.coords())
+        # print(player.coords())
     if key[pygame.K_UP]:
         player.up()
         enemy_group.update(player, enemy_group)
-        #print(player.coords())
+        # print(player.coords())
     if key[pygame.K_LEFT]:
         player.left()
         enemy_group.update(player, enemy_group)
-        #print(player.coords())
+        # print(player.coords())
     if key[pygame.K_RIGHT]:
         player.right()
         enemy_group.update(player, enemy_group)
-        #print(player.coords())
+        # print(player.coords())
     player_group.draw(screen)
     clock.tick(20)
     pygame.display.flip()
