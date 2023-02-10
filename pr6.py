@@ -165,6 +165,7 @@ class Player(pygame.sprite.Sprite):
         for i in range(self.image.get_width()):
             if level_list[(self.rect.y - step) // tile_height][(self.rect.x + i) // tile_width] == "#":
                 flag = 1
+                self.y -= self.rect.y - (((self.rect.y - step) // tile_height) * tile_height + tile_height)
         if self.rect.y > 0 and flag == 0:
             self.rect.y -= step
             self.y = self.rect.y
@@ -177,6 +178,7 @@ class Player(pygame.sprite.Sprite):
         for i in range(self.image.get_height()):
             if level_list[(self.rect.y + i) // tile_height][(self.rect.x - step) // tile_width] == "#":
                 flag = 1
+                self.rect.x -= self.rect.x - (((self.rect.x - step) // tile_width) * tile_width + tile_width)
         if self.rect.x > 0 and flag == 0:
             self.rect.x -= step
             self.x = self.rect.x
