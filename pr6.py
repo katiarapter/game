@@ -7,7 +7,7 @@ size = WIDTH, HEIGHT = 500, 500
 # screen = pygame.display.set_mode(size)
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
-clock1 = pygame.time.Clock()
+#clock1 = pygame.time.Clock()
 
 FPS = 50
 pygame.mixer.music.load("sound.mp3")
@@ -232,7 +232,7 @@ class Enemy(pygame.sprite.Sprite):
         for i in enemy_group:
             # print(type(player.coords()[0]), type(i.cor()[0]))
             n = (((player.coords()[0] - i.cor()[0]) ** 2 + (player.coords()[1] - i.cor()[1]) ** 2) ** 0.5)
-            if n <= 70:
+            if n <= 100:
                 #if i not in self.attack_spisok:
                     #self.attack_spisok.append(i)
                 self.attack(i)
@@ -241,17 +241,18 @@ class Enemy(pygame.sprite.Sprite):
     def attack(self, elem):
         print(len(hits))
         if len(hits) == 0:
-            new_hit = Hit(elem.cor()[0] + tile_width // 2, elem.cor()[1] + tile_height // 2, player.coords()[0] + tile_width // 2, player.coords()[1] + tile_height // 2, 20)
+            new_hit = Hit(elem, elem.cor()[0] + tile_width // 2, elem.cor()[1] + tile_height // 2, player.coords()[0] + tile_width // 2, player.coords()[1] + tile_height // 2, 20)
             hits.add(new_hit)
         else:
             for i in hits:
                 i.update()
+                #clock1.tick(20)
             hits.draw(screen)
             #clock1.tick(20)
 
 class Hit(pygame.sprite.Sprite):
     image = pygame.transform.scale(load_image('bomb_enemy.png'), (tile_width // 3, tile_height // 3))
-    def __init__(self, x, y, x_end, y_end, time, *group):
+    def __init__(self, elem, x, y, x_end, y_end, time, *group):
         super().__init__(*group)
         self.image = Hit.image
         #hits.add(self)
@@ -261,11 +262,19 @@ class Hit(pygame.sprite.Sprite):
         self.x_end = x_end
         self.y_end = y_end
         self.time = time
+        self.elem = elem
         self.step_x = abs(self.x - self.x_end) // self.time
         self.step_y = abs(self.y - self.y_end) // self.time
+        self.n = 0
 
     def update(self):
-        if not (self.rect.x == self.x_end and self.rect.y == self.y_end):
+        self.n += 1
+        #print(self.rect.x + tile_width // 2, self.x_end, self.rect.y + tile_height // 2, self.y_end)
+        #print(pygame.sprite.spritecollide(player, hits, False))
+        #print(self.rect.x + tile_width // 2 == self.x + self.step_x * self.time, self.rect.y + tile_height // 2 == self.step_y * self.time)
+        print(self.n, self.n == self.time)
+        #if not (self.rect.x + tile_width // 2 == self.x + self.step_x * self.time and self.rect.y + tile_height // 2 == self.step_y * self.time):
+        if not self.n == self.time:
             if self.x > self.x_end:
                 self.rect.x -= self.step_x
             else:
@@ -274,6 +283,7 @@ class Hit(pygame.sprite.Sprite):
                 self.rect.y -= self.step_y
             else:
                 self.rect.y += self.step_y
+            print(pygame.sprite.spritecollide(player, hits, False))
         else:
             print("!!")
             self.kill()
