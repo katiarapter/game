@@ -13,6 +13,7 @@ pygame.mixer.music.load("sound.mp3")
 pygame.mixer.music.play(-1)
 
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -122,10 +123,12 @@ tile_images = {
     'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
 }
 player_image = load_image('player1.png')
-player_image = pygame.transform.scale(player_image, (screen.get_width() // 31 - 5, screen.get_height() // 18 - 5))
+player_image = pygame.transform.scale(player_image, ((screen.get_width() // 31) // 5 * 4 , (screen.get_height() // 18) // 5 * 4))
+pl_height, pl_width = (screen.get_width() // 31) // 5 * 4, (screen.get_height() // 18) // 5 * 4
 
 tile_width, tile_height = screen.get_width() // 31, screen.get_height() // 18
-
+#step = tile_height // 10
+step = 10
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
@@ -150,25 +153,21 @@ class Player(pygame.sprite.Sprite):
     def down(self):
         flag = 0
         for i in range(self.image.get_width()):
-            if (self.rect.y + 10 + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + 10 + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
+            if (self.rect.y + step + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + step + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
                 flag = 1
+                self.rect.y += ((self.rect.y + step + tile_height) // tile_height) * tile_height - (self.rect.y + pl_height)
         if self.rect.y + tile_height < tile_height * len(level_list) and flag == 0:
-            self.rect.y += 10
+            self.rect.y += step
             self.y = self.rect.y
 
     def up(self):
         flag = 0
         for i in range(self.image.get_width()):
-            if level_list[(self.rect.y - 10) // tile_height][(self.rect.x + i) // tile_width] == "#":
+            if level_list[(self.rect.y - step) // tile_height][(self.rect.x + i) // tile_width] == "#":
                 flag = 1
         if self.rect.y > 0 and flag == 0:
-            self.rect.y -= 10
+            self.rect.y -= step
             self.y = self.rect.y
-        #for elem in walls:
-        #    if not elem.rect.colliderect(player):
-        #        self.rect.y -= 10
-        #    else:
-        #        player.rect.top = elem.rect.bottom
 
     def left(self):
         if self.moves == 'r':
@@ -176,10 +175,10 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'l'
         flag = 0
         for i in range(self.image.get_height()):
-            if level_list[(self.rect.y + i) // tile_height][(self.rect.x - 10) // tile_width] == "#":
+            if level_list[(self.rect.y + i) // tile_height][(self.rect.x - step) // tile_width] == "#":
                 flag = 1
         if self.rect.x > 0 and flag == 0:
-            self.rect.x -= 10
+            self.rect.x -= step
             self.x = self.rect.x
 
     def right(self):
@@ -188,10 +187,11 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'r'
         flag = 0
         for i in range(self.image.get_height()):
-            if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + 10 + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + 10 + tile_width) // tile_width] == "#":
+            if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + step + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + step + tile_width) // tile_width] == "#":
                 flag = 1
+                self.rect.x += ((self.rect.x + step + tile_width) // tile_width) * tile_width - (self.rect.x + pl_width)
         if self.rect.x + tile_width < tile_width * len(level_list[0]) and flag == 0:
-            self.rect.x += 10
+            self.rect.x += step
             self.x = self.rect.x
 
     def coords(self):
