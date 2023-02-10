@@ -73,16 +73,16 @@ def choose_character():
     string_rendered = font.render(intro_text[0], 100, pygame.Color('white'))
     intro_rect = string_rendered.get_rect()
     screen.blit(string_rendered, ((screen.get_width() - 796) // 2, 70, 896, 125))
-    player1 = pygame.image.load('data/player.png')
-    player1_rect = player1.get_rect(bottomleft=(300, 800))
+    player1 = pygame.transform.scale(load_image('player.png'), (200, 200))
+    player1_rect = player1.get_rect(bottomleft=(screen.get_width() // 3 - 200, 500))
     screen.blit(player1, player1_rect)
 
-    player2 = pygame.image.load('data/player2.png')
-    player2_rect = player2.get_rect(bottomleft=(700, 800))
+    player2 = pygame.transform.scale(load_image('player2.png'), (200, 200))
+    player2_rect = player2.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 2 - 200, 500))
     screen.blit(player2, player2_rect)
 
-    player3 = pygame.image.load('data/enemy2.png')
-    player3_rect = player3.get_rect(bottomleft=(900, 800))
+    player3 = pygame.transform.scale(load_image('enemy2.png'), (200, 200))
+    player3_rect = player3.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 3 - 200, 500))
     screen.blit(player3, player3_rect)
 
     pygame.display.update()
@@ -114,17 +114,17 @@ def load_level(filename):
 
 #
 tile_images = {
-    'wall': pygame.transform.scale(load_image('block.png'), (50, 50)),
-    'empty': pygame.transform.scale(load_image('water22.jpg'), (50, 50)),
-    'other': pygame.transform.scale(load_image('water22.jpg'), (50, 50)),
-    'enemy2': pygame.transform.scale(load_image('enemy1.png'), (50, 50)),
-    'enemy1': pygame.transform.scale(load_image('enemy2.png'), (50, 50)),
-    'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (50, 50))
+    'wall': pygame.transform.scale(load_image('block.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'empty': pygame.transform.scale(load_image('grass.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'other': pygame.transform.scale(load_image('out.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy2': pygame.transform.scale(load_image('enemy1.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy1': pygame.transform.scale(load_image('enemy2.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
 }
 player_image = load_image('player1.png')
-player_image = pygame.transform.scale(player_image, (40, 40))
+player_image = pygame.transform.scale(player_image, (screen.get_width() // 31 - 5, screen.get_height() // 18 - 5))
 
-tile_width = tile_height = 50
+tile_width, tile_height = screen.get_width() // 31, screen.get_height() // 18
 
 
 class Tile(pygame.sprite.Sprite):
@@ -141,17 +141,34 @@ class Player(pygame.sprite.Sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = player_image
+        self.x = pos_x * tile_width
+        self.y = pos_y * tile_height
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 15, tile_height * pos_y + 5)
         self.moves = 'l'
 
     def down(self):
-        if self.rect.y + 50 < screen.get_height() and level_list[(self.rect.y + 60) // 50][self.rect.x // 50] != "#":
+        flag = 0
+        for i in range(self.image.get_width()):
+            if (self.rect.y + 10 + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + 10 + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
+                flag = 1
+        if self.rect.y + tile_height < tile_height * len(level_list) and flag == 0:
             self.rect.y += 10
+            self.y = self.rect.y
 
     def up(self):
-        if self.rect.y > 0 and level_list[(self.rect.y - 10) // 50][self.rect.x // 50] != "#":
+        flag = 0
+        for i in range(self.image.get_width()):
+            if level_list[(self.rect.y - 10) // tile_height][(self.rect.x + i) // tile_width] == "#":
+                flag = 1
+        if self.rect.y > 0 and flag == 0:
             self.rect.y -= 10
+            self.y = self.rect.y
+        #for elem in walls:
+        #    if not elem.rect.colliderect(player):
+        #        self.rect.y -= 10
+        #    else:
+        #        player.rect.top = elem.rect.bottom
 
     def left(self):
         if self.moves == 'r':
@@ -159,10 +176,11 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'l'
         flag = 0
         for i in range(self.image.get_height()):
-            if level_list[(self.rect.y + i) // 50][(self.rect.x - 10) // 50] == "#":
+            if level_list[(self.rect.y + i) // tile_height][(self.rect.x - 10) // tile_width] == "#":
                 flag = 1
         if self.rect.x > 0 and flag == 0:
             self.rect.x -= 10
+            self.x = self.rect.x
 
     def right(self):
         if self.moves == 'l':
@@ -170,31 +188,39 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'r'
         flag = 0
         for i in range(self.image.get_height()):
-            if level_list[(self.rect.y + i) // 50][(self.rect.x + 60) // 50] == "#":
+            if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + 10 + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + 10 + tile_width) // tile_width] == "#":
                 flag = 1
-        if self.rect.x + 50 < screen.get_width() and flag == 0:
+        if self.rect.x + tile_width < tile_width * len(level_list[0]) and flag == 0:
             self.rect.x += 10
+            self.x = self.rect.x
 
     def coords(self):
-        return (self.rect.x, self.rect.y)
+        return (self.x, self.y)
 
 
 class Enemy(pygame.sprite.Sprite):
     image = pygame.transform.scale(load_image('enemy2.png'), (50, 50))
 
-    def __init__(self, *group):
+    def __init__(self, x, y, *group):
         super().__init__(*group)
         self.image = Enemy.image
         self.rect = self.image.get_rect()
+        self.x = x * tile_width
+        self.y = y * tile_height
+        #group[0].add(self)
 
-    def update(self, *args):
-        flag = 0
-        for i in range(player.coords()):
-            pass
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and flag == 0:
-            self.attack()
+    def cor(self):
+        return (self.x, self.y)
 
-    def attack(self):
+    def update(self, player, *group):
+        for i in enemy_group:
+            # print(type(player.coords()[0]), type(i.cor()[0]))
+            n = (((player.coords()[0] - i.cor()[0]) ** 2 + (player.coords()[1] - i.cor()[1]) ** 2) ** 0.5)
+            if n <= 120:
+                print('!!')
+                self.attack(i)
+
+    def attack(self, i):
         pass
 
 
@@ -206,8 +232,9 @@ player = None
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
 walls = pygame.sprite.Group()
-
+enemies = []
 
 def generate_level(level):
     new_player, x, y = None, None, None
@@ -223,6 +250,9 @@ def generate_level(level):
             elif level[y][x] == "%":
                 Tile('empty', x, y)
                 Tile('enemy3', x, y)
+                enemy = Enemy(x, y, enemy_group)
+                enemy_group.add(enemy)
+                enemies.append(enemy)
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
@@ -237,7 +267,7 @@ pygame.mixer.music.load("3level.mp3")
 pygame.mixer.music.play(-1)
 choose_character()
 level_list = load_level('map2.txt')
-print("\n".join(level_list))
+#print("\n".join(level_list))
 player, level_x, level_y = generate_level(level_list)
 while running:
     all_sprites.draw(screen)
@@ -245,14 +275,23 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        #enemy_group.update(player, enemy_group)
     if key[pygame.K_DOWN]:
         player.down()
+        enemy_group.update(player, enemy_group)
+        #print(player.coords())
     if key[pygame.K_UP]:
         player.up()
+        enemy_group.update(player, enemy_group)
+        #print(player.coords())
     if key[pygame.K_LEFT]:
         player.left()
+        enemy_group.update(player, enemy_group)
+        #print(player.coords())
     if key[pygame.K_RIGHT]:
         player.right()
+        enemy_group.update(player, enemy_group)
+        #print(player.coords())
     player_group.draw(screen)
     clock.tick(20)
     pygame.display.flip()
