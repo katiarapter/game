@@ -148,14 +148,27 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'l'
 
     def down(self):
-        if self.rect.y + tile_height < screen.get_height() and level_list[(self.rect.y + 10 + tile_height) // tile_height][self.rect.x // tile_width] != "#":
+        flag = 0
+        for i in range(self.image.get_width()):
+            if (self.rect.y + 10 + tile_height) // tile_height < len(level_list) and (self.rect.x + i) // tile_width < len(level_list[0]) and level_list[(self.rect.y + 10 + tile_height) // tile_height][(self.rect.x + i) // tile_width] == "#":
+                flag = 1
+        if self.rect.y + tile_height < tile_height * len(level_list) and flag == 0:
             self.rect.y += 10
             self.y = self.rect.y
 
     def up(self):
-        if self.rect.y > 0 and level_list[(self.rect.y - 10) // tile_height][self.rect.x // tile_width] != "#":
+        flag = 0
+        for i in range(self.image.get_width()):
+            if level_list[(self.rect.y - 10) // tile_height][(self.rect.x + i) // tile_width] == "#":
+                flag = 1
+        if self.rect.y > 0 and flag == 0:
             self.rect.y -= 10
             self.y = self.rect.y
+        #for elem in walls:
+        #    if not elem.rect.colliderect(player):
+        #        self.rect.y -= 10
+        #    else:
+        #        player.rect.top = elem.rect.bottom
 
     def left(self):
         if self.moves == 'r':
@@ -175,9 +188,9 @@ class Player(pygame.sprite.Sprite):
         self.moves = 'r'
         flag = 0
         for i in range(self.image.get_height()):
-            if level_list[(self.rect.y + i) // tile_height][(self.rect.x + 60) // tile_width] == "#":
+            if (self.rect.y + i) // tile_height < len(level_list) and (self.rect.x + 10 + tile_width) // tile_width < len(level_list[0]) and level_list[(self.rect.y + i) // tile_height][(self.rect.x + 10 + tile_width) // tile_width] == "#":
                 flag = 1
-        if self.rect.x + tile_width < screen.get_width() and flag == 0:
+        if self.rect.x + tile_width < tile_width * len(level_list[0]) and flag == 0:
             self.rect.x += 10
             self.x = self.rect.x
 
@@ -200,11 +213,9 @@ class Enemy(pygame.sprite.Sprite):
         return (self.x, self.y)
 
     def update(self, player, *group):
-        #n = 0
         for i in enemy_group:
-            print(type(player.coords()[0]), type(i.cor()[0]))
+            # print(type(player.coords()[0]), type(i.cor()[0]))
             n = (((player.coords()[0] - i.cor()[0]) ** 2 + (player.coords()[1] - i.cor()[1]) ** 2) ** 0.5)
-            print(n)
             if n <= 120:
                 print('!!')
                 self.attack(i)
@@ -256,7 +267,7 @@ pygame.mixer.music.load("3level.mp3")
 pygame.mixer.music.play(-1)
 choose_character()
 level_list = load_level('map2.txt')
-print("\n".join(level_list))
+#print("\n".join(level_list))
 player, level_x, level_y = generate_level(level_list)
 while running:
     all_sprites.draw(screen)
