@@ -7,6 +7,7 @@ size = WIDTH, HEIGHT = 500, 500
 # screen = pygame.display.set_mode(size)
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
+clock1 = pygame.time.Clock()
 
 FPS = 50
 pygame.mixer.music.load("sound.mp3")
@@ -221,6 +222,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = x * tile_width
         self.y = y * tile_height
+        self.attack_spisok = []
         # group[0].add(self)
 
     def cor(self):
@@ -230,17 +232,51 @@ class Enemy(pygame.sprite.Sprite):
         for i in enemy_group:
             # print(type(player.coords()[0]), type(i.cor()[0]))
             n = (((player.coords()[0] - i.cor()[0]) ** 2 + (player.coords()[1] - i.cor()[1]) ** 2) ** 0.5)
-            if n <= 120:
-                print(i)
+            if n <= 70:
+                #if i not in self.attack_spisok:
+                    #self.attack_spisok.append(i)
                 self.attack(i)
+                #self.attack(self.attack_spisok, player.coords()[0] + tile_width // 2, player.coords()[1] + tile_height // 2)
 
-    def attack(self, i):
-        bomb = pygame.transform.scale(load_image('bomb_player.png'), (tile_width // 2, tile_height // 2))
-        bomb_rect = bomb.get_rect(bottomleft=(i.cor()[0], i.cor()[1] + (tile_height // 1.5)),
-                                  bottomright=(i.cor()[0] + tile_width, i.cor()[1] + (tile_height // 1.5)))
-        screen.blit(bomb, bomb_rect)
-        pygame.display.update()
+    def attack(self, elem):
+        print(len(hits))
+        if len(hits) == 0:
+            new_hit = Hit(elem.cor()[0] + tile_width // 2, elem.cor()[1] + tile_height // 2, player.coords()[0] + tile_width // 2, player.coords()[1] + tile_height // 2, 20)
+            hits.add(new_hit)
+        else:
+            for i in hits:
+                i.update()
+            hits.draw(screen)
+            #clock1.tick(20)
 
+class Hit(pygame.sprite.Sprite):
+    image = pygame.transform.scale(load_image('bomb_enemy.png'), (tile_width // 3, tile_height // 3))
+    def __init__(self, x, y, x_end, y_end, time, *group):
+        super().__init__(*group)
+        self.image = Hit.image
+        #hits.add(self)
+        self.x = x
+        self.y = y
+        self.rect = self.image.get_rect().move(x, y)
+        self.x_end = x_end
+        self.y_end = y_end
+        self.time = time
+        self.step_x = abs(self.x - self.x_end) // self.time
+        self.step_y = abs(self.y - self.y_end) // self.time
+
+    def update(self):
+        if not (self.rect.x == self.x_end and self.rect.y == self.y_end):
+            if self.x > self.x_end:
+                self.rect.x -= self.step_x
+            else:
+                self.rect.x += self.step_x
+            if self.rect.y > self.y_end:
+                self.rect.y -= self.step_y
+            else:
+                self.rect.y += self.step_y
+        else:
+            print("!!")
+            self.kill()
 
 # основной персонаж
 
@@ -253,6 +289,7 @@ tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 walls = pygame.sprite.Group()
+hits = pygame.sprite.Group()
 enemies = []
 
 
