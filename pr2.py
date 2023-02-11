@@ -15,7 +15,7 @@ pygame.mixer.music.play(-1)
 
 global flag_level, hp
 flag_level = False
-hp = 1000
+hp = 10000
 
 
 def load_image(name, colorkey=None):
@@ -82,12 +82,12 @@ def choose_character():
     player1_rect = player1.get_rect(bottomleft=(screen.get_width() // 3 - 200, 500))
     screen.blit(player1, player1_rect)
 
-    player2 = pygame.transform.scale(load_image('player2.png'), (200, 200))
-    player2_rect = player2.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 2 - 200, 500))
+    player2 = pygame.transform.scale(load_image('frog.png'), (200, 200))
+    player2_rect = player2.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 2 - 225, 500))
     screen.blit(player2, player2_rect)
 
     player3 = pygame.transform.scale(load_image('enemy2.png'), (200, 200))
-    player3_rect = player3.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 3 - 200, 500))
+    player3_rect = player3.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 3 - 300, 500))
     screen.blit(player3, player3_rect)
 
     pygame.display.update()
@@ -178,7 +178,7 @@ tile_images = {
     'other': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
     'enemy2': pygame.transform.scale(load_image('enemy1.png'), (screen.get_width() // 31, screen.get_height() // 18)),
     'enemy1': pygame.transform.scale(load_image('enemy2.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
+    'enemy3': pygame.transform.scale(load_image('frog.png'), (screen.get_width() // 31, screen.get_height() // 18))
 }
 player_image = load_image('player1.png')
 player_image = pygame.transform.scale(player_image, ((screen.get_width() // 31) // 5 * 4, (screen.get_height() // 18)
@@ -329,7 +329,7 @@ class Enemy(pygame.sprite.Sprite):
                 # + tile_height // 2)
 
     def attack(self, elem):
-        print(len(hits))
+
         if len(hits) == 0:
             new_hit = Hit(elem, elem.cor()[0] + tile_width // 2, elem.cor()[1] + tile_height // 2,
                           player.coords()[0] + tile_width // 2, player.coords()[1] + tile_height // 2, 20)
@@ -367,7 +367,7 @@ class Hit(pygame.sprite.Sprite):
         # print(pygame.sprite.spritecollide(player, hits, False))
         # print(self.rect.x + tile_width // 2 == self.x + self.step_x * self.time, self.rect.y + tile_height // 2 ==
         # self.step_y * self.time)
-        print(self.n, self.n == self.time)
+
         # if not (self.rect.x + tile_width // 2 == self.x + self.step_x * self.time and self.rect.y + tile_height // 2
         # == self.step_y * self.time):
         if not self.n == self.time:
@@ -379,7 +379,7 @@ class Hit(pygame.sprite.Sprite):
                 self.rect.y -= self.step_y
             else:
                 self.rect.y += self.step_y
-            print(pygame.sprite.spritecollide(player, hits, False))
+
         else:
             print("!!")
             hp -= 50
@@ -473,6 +473,9 @@ running = True
 flag_level = False
 if hp == 0:
     game_over()
+    print('BOOO, LOOOOOSER')
+    hp = 10000
+    choose_character()
 else:
     player_group.empty()
     level_list = load_level('map3.txt')
@@ -510,7 +513,13 @@ else:
             running = False
     if hp == 0:
         game_over()
+        print('BOOOOO, LOOOSER')
+        hp = 10000
+        choose_character()
     else:
         winner_screen()
-        pygame.mixer.music.pause()
+        print('YOU ARE A WINNER')
+        hp = 10000
+        choose_character()
+    pygame.mixer.music.pause()
     pygame.quit()
