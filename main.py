@@ -36,6 +36,7 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+
 tile_images = {
     'wall': pygame.transform.scale(load_image('block.png'), (screen.get_width() // 31, screen.get_height() // 18)),
     'portal': pygame.transform.scale(load_image('portal.png'), (screen.get_width() // 31, screen.get_height() // 18)),
@@ -80,9 +81,9 @@ def start_screen():
 
 def choose_character():
     global tile_images
-    #start = pygame.sprite.Group()
+    # start = pygame.sprite.Group()
 
-    intro_text = ['CHOOSE YOUR CHARACTER']
+    intro_text = ['CHOOSE YOUR ENEMY']
 
     fon = pygame.transform.scale(load_image('black.png'), (screen.get_width(), screen.get_height()))
     screen.blit(fon, (0, 0))
@@ -90,17 +91,17 @@ def choose_character():
     string_rendered = font.render(intro_text[0], 100, pygame.Color('white'))
     screen.blit(string_rendered, ((screen.get_width() - 796) // 2, 70, 896, 125))
     player1 = pygame.transform.scale(load_image('player2.png'), (200, 200))
-    #start.add(player1)
+    # start.add(player1)
     player1_rect = player1.get_rect(bottomleft=(screen.get_width() // 3 - 200, 500))
     screen.blit(player1, player1_rect)
 
     player2 = pygame.transform.scale(load_image('frog.png'), (200, 200))
-    #start.add(player2)
+    # start.add(player2)
     player2_rect = player2.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 2 - 225, 500))
     screen.blit(player2, player2_rect)
 
     player3 = pygame.transform.scale(load_image('enemy2.png'), (200, 200))
-    #start.add(player3)
+    # start.add(player3)
     player3_rect = player3.get_rect(bottomleft=(((screen.get_width() - 200) // 3) * 3 - 300, 500))
     screen.blit(player3, player3_rect)
 
@@ -221,7 +222,6 @@ def game_over():
                 return  # начинаем игру
         pygame.display.flip()
         clock.tick(FPS)
-
 
 
 player_image = load_image('player1.png')
