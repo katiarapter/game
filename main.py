@@ -4,10 +4,8 @@ import os
 
 pygame.init()
 size = WIDTH, HEIGHT = 500, 500
-# screen = pygame.display.set_mode(size)
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
-# clock1 = pygame.time.Clock()
 
 FPS = 50
 pygame.mixer.music.load("sound.mp3")
@@ -37,6 +35,16 @@ def load_image(name, colorkey=None):
 def terminate():
     pygame.quit()
     sys.exit()
+
+tile_images = {
+    'wall': pygame.transform.scale(load_image('block.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'portal': pygame.transform.scale(load_image('portal.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'empty': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'other': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy2': pygame.transform.scale(load_image('enemy1.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy1': pygame.transform.scale(load_image('enemy2.png'), (screen.get_width() // 31, screen.get_height() // 18)),
+    'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
+}
 
 
 def start_screen():
@@ -71,6 +79,8 @@ def start_screen():
 
 
 def choose_character():
+    global tile_images
+
     intro_text = ['CHOOSE YOUR CHARACTER']
 
     fon = pygame.transform.scale(load_image('black.png'), (screen.get_width(), screen.get_height()))
@@ -78,7 +88,7 @@ def choose_character():
     font = pygame.font.Font(None, 80)
     string_rendered = font.render(intro_text[0], 100, pygame.Color('white'))
     screen.blit(string_rendered, ((screen.get_width() - 796) // 2, 70, 896, 125))
-    player1 = pygame.transform.scale(load_image('player.png'), (200, 200))
+    player1 = pygame.transform.scale(load_image('enemy1.png'), (200, 200))
     player1_rect = player1.get_rect(bottomleft=(screen.get_width() // 3 - 200, 500))
     screen.blit(player1, player1_rect)
 
@@ -98,6 +108,7 @@ def choose_character():
                 terminate()
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
+
                 return  # начинаем игру
         pygame.display.flip()
         clock.tick(FPS)
@@ -171,15 +182,7 @@ def game_over():
         clock.tick(FPS)
 
 
-tile_images = {
-    'wall': pygame.transform.scale(load_image('block.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'portal': pygame.transform.scale(load_image('portal.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'empty': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'other': pygame.transform.scale(load_image('water22.jpg'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'enemy2': pygame.transform.scale(load_image('enemy1.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'enemy1': pygame.transform.scale(load_image('enemy2.png'), (screen.get_width() // 31, screen.get_height() // 18)),
-    'enemy3': pygame.transform.scale(load_image('enemy3.gif'), (screen.get_width() // 31, screen.get_height() // 18))
-}
+
 player_image = load_image('player1.png')
 player_image = pygame.transform.scale(player_image, ((screen.get_width() // 31) // 5 * 4, (screen.get_height() // 18)
                                                      // 5 * 4))
@@ -381,7 +384,6 @@ class Hit(pygame.sprite.Sprite):
                 self.rect.y += self.step_y
 
         else:
-            print("!!")
             hp -= 50
             self.kill()
 
@@ -478,6 +480,12 @@ if hp == 0:
     choose_character()
 else:
     player_group.empty()
+    all_sprites.empty()
+    tiles_group.empty()
+    enemy_group.empty()
+    walls.empty()
+    portal.empty()
+    hits.empty()
     level_list = load_level('map3.txt')
     # print("\n".join(level_list))
     player, level_x, level_y = generate_level(level_list)
